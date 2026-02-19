@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: sarcastic_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-admin123}
+      POSTGRES_DB: ${DB_NAME:-sarcastic_ai_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  vector_db:
+    image: chromadb/chroma:latest
+    container_name: sarcastic_chroma
+    restart: always
+    ports:
+      - "8001:8000" # Host 8001 -> Container 8000
+    volumes:
+      - chroma_data:/chroma/chroma
+
+  backend:
+    image: sarcastic-ai-backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sarcastic_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-admin123}
+      - DB_NAME=${DB_NAME:-sarcastic_ai_db}
+      - CHROMA_SERVER_HOST=vector_db
+      - CHROMA_SERVER_PORT=8000
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3:8b}
+      - USE_LLM=${USE_LLM:-false}
+    depends_on:
+      - postgres
+      - vector_db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    image: sarcastic-ai-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: sarcastic_frontend
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://backend:8000/api/v1
+    volumes:
+      - ./compliance_dashboard.py:/app/compliance_dashboard.py
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  chroma_data:

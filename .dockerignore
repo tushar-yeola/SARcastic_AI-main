@@ -1,0 +1,42 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.venv
+venv
+env
+
+# Git
+.git
+.gitignore
+
+# Docker
+docker-compose.yml
+Dockerfile*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Data / Model caches
+chroma_db
+*.db
+*.sqlite3
+
+# Node (if any)
+node_modules
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs
+*.md
+LICENSE
+
+# Agent/IDE files
+.agent
+.gemini

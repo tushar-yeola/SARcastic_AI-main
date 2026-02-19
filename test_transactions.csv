@@ -1,0 +1,4 @@
+customer_id,amount,transaction_date,country,description
+CUST-999,9200,2026-02-15,US,Cash Deposit
+CUST-999,9500,2026-02-16,US,Cash Deposit
+CUST-999,55000,2026-02-17,Cayman Islands,Wire Transfer
